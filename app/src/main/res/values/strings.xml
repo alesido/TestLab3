@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">TestLab</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- K9 -->
+    <string name="unknown_recipient"><![CDATA[<Unknown Recipient>]]></string>
+    <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
+    <string name="message_compose_error_incomplete_recipient">Recipient field contains incomplete input!</string>
+    <string name="error_contact_address_not_found">No email address could be found for this contact.</string>
+    <string name="recipient_from">From</string>
+    <string name="recipient_to">To</string>
+    <string name="recipient_cc">CC</string>
+    <string name="recipient_bcc">BCC</string>
+    <string name="btn_crypto_sign">Sign</string>
+    <string name="btn_encrypt">Encrypt</string>
+    <string name="message_compose_subject_hint">Subject</string>
+    <string name="message_compose_description_edit_quoted_text">Edit quoted text</string>
+    <string name="message_compose_show_quoted_text_action">Quote message</string>
+    <string name="message_compose_description_delete_quoted_text">Remove quoted text</string>
+    <string name="message_compose_content_hint">Message text</string>
+    <string name="message_compose_signature_hint">Signature</string>
+    <string name="add_attachment_action">Add attachment</string>
+    <string name="send_action">Send</string>
+    <string name="add_from_contacts">Add from contacts</string>
+    <string name="save_draft_action">Save draft</string>
+    <string name="discard_action">Discard</string>
+    <string name="read_receipt">Read</string>
+    <string name="address_type_home">Home</string>
+    <string name="address_type_work">Work</string>
+    <string name="address_type_other">Other</string>
+    <string name="address_type_mobile">Mobile</string>
+
+</resources>
