@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
     android:orientation="vertical"
-    tools:showIn="@layout/message_compose">
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.fsck.k9.AccountStub;
 import com.fsck.k9.activity.RecipientMvpView;
 import com.fsck.k9.activity.RecipientPresenter;
+import com.fsck.k9.mail.Address;
 import com.fsck.k9.ui.EolConvertingEditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements RecipientMvpView.
     private Message sendEMail(Gmail gmailService, MimeMessage email) throws MessagingException, IOException
     {
         Message message = createMessageWithEmail(email);
-        message = gmailService.users().messages().send("me", message).execute();
+        message = gmailService.users().messages().send("alsiessko@gmail.com", message).execute();
         return message;
     }
 
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements RecipientMvpView.
         return message;
     }
 
-    public static MimeMessage createEmail(String to, String from, String subject,
+    public MimeMessage createEmail(String to, String from, String subject,
                                           String htmlText) throws MessagingException {
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
@@ -153,50 +154,54 @@ public class MainActivity extends AppCompatActivity implements RecipientMvpView.
         return email;
     }
 
-    /**
-     * Create a MimeMessage using the parameters provided.
+    /** Create a MimeMessage using the parameters provided.
      *
-     * @param to Email address of the receiver.
-     * @param from Email address of the sender, the mailbox account.
-     * @param subject Subject of the email.
-     * @param bodyText Body text of the email.
-     * @param fileDir Path to the directory containing attachment.
-     * @param filename Name of file to be attached.
-     * @return MimeMessage to be used to send email.
-     * @throws MessagingException
      */
-    public static MimeMessage createEmailWithAttachment(String to, String from, String subject,
-                                                        String bodyText, String bodyContentType,
-                                                        String fileDir, String filename, String attachmentContetType) throws MessagingException, IOException {
+    public MimeMessage createEmailWithAttachment(String bodyText, String fileDir, String filename, String attachmentContentType) throws MessagingException, IOException
+    {
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
 
         MimeMessage email = new MimeMessage(session);
-        InternetAddress tAddress = new InternetAddress(to);
-        InternetAddress fAddress = new InternetAddress(from);
 
-        email.setFrom(fAddress);
-        email.addRecipient(javax.mail.Message.RecipientType.TO, tAddress);
-        email.setSubject(subject);
+        // from
+        email.setFrom(new InternetAddress("alsiessko@gmail.com"));
 
-        MimeBodyPart mimeBodyPart = new MimeBodyPart();
-//        mimeBodyPart.setContent(bodyText, bodyContentType);
-//        mimeBodyPart.setHeader("Content-Type", "text/plain; charset=\"UTF-8\"");
+        // to
+        for (Address toAddress : recipientPresenter.getToAddresses()) {
+            email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(toAddress.getAddress()));
+        }
+        for (Address ccAddress : recipientPresenter.getCcAddresses()) {
+            email.addRecipient(javax.mail.Message.RecipientType.CC, new InternetAddress(ccAddress.getAddress()));
+        }
+        for (Address bccAddress : recipientPresenter.getBccAddresses()) {
+            email.addRecipient(javax.mail.Message.RecipientType.CC, new InternetAddress(bccAddress.getAddress()));
+        }
+
+        // subject
+        email.setSubject(subjectEditText.getText().toString());
+
+        // body (html)
         email.setText(bodyText, "utf-8", "html");
 
 
+        // attachment
         Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(mimeBodyPart);
 
-        mimeBodyPart = new MimeBodyPart();
+//        MimeBodyPart textBodyPart = new MimeBodyPart();
+//        textBodyPart.setContent(bodyText, bodyContentType);
+//        textBodyPart.setHeader("Content-Type", "text/plain; charset=\"UTF-8\"");
+//        multipart.addBodyPart(mimeBodyPart);
+
+        MimeBodyPart attachment = new MimeBodyPart();
         DataSource source = new FileDataSource(fileDir + filename);
 
-        mimeBodyPart.setDataHandler(new DataHandler(source));
-        mimeBodyPart.setFileName(filename);
-        mimeBodyPart.setHeader("Content-Type", attachmentContetType + "; name=\"" + filename + "\"");
-        mimeBodyPart.setHeader("Content-Transfer-Encoding", "base64");
+        attachment.setDataHandler(new DataHandler(source));
+        attachment.setFileName(filename);
+        attachment.setHeader("Content-Type", attachmentContentType + "; name=\"" + filename + "\"");
+        attachment.setHeader("Content-Transfer-Encoding", "base64");
 
-        multipart.addBodyPart(mimeBodyPart);
+        multipart.addBodyPart(attachment);
 
         email.setContent(multipart);
 
@@ -435,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements RecipientMvpView.
 
                 ensureAttachmentFileExists("mail_attachment_example.png");
 
-                MimeMessage email = createEmailWithAttachment("alsiessko@gmail.com", "me", "Test HTML mail",
+                MimeMessage email = createEmailWithAttachment(
                         "<html>\n" +
                                 "\t<style type=\"text/css\">\n" +
                                 "\t\ttable.tableizer-table {\n" +
@@ -468,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements RecipientMvpView.
                                 "\t\t\t<tr><td>SOUTH AFRICA</td><td>Suite B01b 1st Floor Block B Ambridge Office</br>Park Vrede Road, Bryanston</br>Johannesburg</br><a href=\"tel:+27 10 594 4621\">Tel: +27 10 594 4621</a></td></tr>\n" +
                                 "        </table>\n" +
                                 "    </body>\n" +
-                                "</html>", "text/html; charset=\"utf-8\"",
+                                "</html>",
                         EMAIL_ATTACHMENTS_ROOT_PATH, "mail_attachment_example.png", "image/png");
 
                 sendEMail(gMailService, email);
